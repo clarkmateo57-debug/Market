@@ -1,338 +1,336 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Live CTA Strategy</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-           st.markdown("""
+import streamlit as st
+
+st.markdown("""
 <style>
-body {
-    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
-</style>
-""", unsafe_allow_html=True)
-            color: #fff;
-            st.markdown("""
-<style>
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    color: #fff;
+    min-height: 100vh;
+}
+
 .container {
     padding: 20px;
     background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
     border-radius: 12px;
+    max-width: 1600px;
+    margin: 0 auto;
 }
+
+.header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.header h1 {
+    font-size: 2.5em;
+    margin-bottom: 10px;
+    color: #60a5fa;
+}
+
+.status-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(30, 41, 59, 0.8);
+    padding: 15px 25px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(96, 165, 250, 0.2);
+}
+
 </style>
 """, unsafe_allow_html=True)
-            min-height: 100vh;
-        }
-        
-        .container {
-            max-width: 1600px;
-            margin: 0 auto;
-        }
-        
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        
-        .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            color: #60a5fa;
-        }
-        
-        .status-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(30, 41, 59, 0.8);
-            padding: 15px 25px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            border: 1px solid rgba(96, 165, 250, 0.2);
-        }
-        
-        .status-indicator {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .live-dot {
-            width: 12px;
-            height: 12px;
-            background: #10b981;
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.4; }
-        }
-        
-        .grid {
-            display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-        
-        .card {
-            background: rgba(30, 41, 59, 0.8);
-            border-radius: 12px;
-            padding: 20px;
-            border: 1px solid rgba(96, 165, 250, 0.2);
-        }
-        
-        .card h3 {
-            font-size: 1.2em;
-            margin-bottom: 15px;
-            color: #60a5fa;
-        }
-        
-        .market-item {
-            background: rgba(15, 23, 42, 0.6);
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            border-left: 4px solid #60a5fa;
-        }
-        
-        .market-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        
-        .market-name {
-            font-weight: bold;
-            font-size: 1.1em;
-        }
-        
-        .market-price {
-            font-size: 1.3em;
-            font-weight: bold;
-        }
-        
-        .price-up {
-            color: #10b981;
-        }
-        
-        .price-down {
-            color: #ef4444;
-        }
-        
-        .market-details {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 10px;
-            font-size: 0.9em;
-        }
-        
-        .detail-item {
-            display: flex;
-            justify-content: space-between;
-        }
-        
-        .label {
-            color: #94a3b8;
-        }
-        
-        .order-feed {
-            height: 400px;
-            overflow-y: auto;
-            background: rgba(15, 23, 42, 0.6);
-            padding: 15px;
-            border-radius: 8px;
-        }
-        
-        .order-item {
-            padding: 10px;
-            margin-bottom: 8px;
-            border-radius: 6px;
-            border-left: 3px solid;
-            animation: slideIn 0.3s ease;
-        }
-        
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-        
-        .order-long {
-            background: rgba(16, 185, 129, 0.1);
-            border-color: #10b981;
-        }
-        
-        .order-short {
-            background: rgba(239, 68, 68, 0.1);
-            border-color: #ef4444;
-        }
-        
-        .order-close {
-            background: rgba(96, 165, 250, 0.1);
-            border-color: #60a5fa;
-        }
-        
-        .order-header {
-            display: flex;
-            justify-content: space-between;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-        
-        .order-details {
-            font-size: 0.85em;
-            color: #94a3b8;
-        }
-        
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-        }
-        
-        .stat-box {
-            background: rgba(15, 23, 42, 0.6);
-            padding: 15px;
-            border-radius: 8px;
-            text-align: center;
-        }
-        
-        .stat-label {
-            color: #94a3b8;
-            font-size: 0.9em;
-            margin-bottom: 5px;
-        }
-        
-        .stat-value {
-            font-size: 1.8em;
-            font-weight: bold;
-        }
-        
-        .prediction-box {
-            background: rgba(139, 92, 246, 0.1);
-            border: 1px solid rgba(139, 92, 246, 0.3);
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 10px;
-        }
-        
-        .prediction-label {
-            color: #a78bfa;
-            font-size: 0.9em;
-            margin-bottom: 5px;
-        }
-        
-        .prediction-value {
-            font-size: 1.3em;
-            font-weight: bold;
-            color: #c4b5fd;
-        }
-        
-        canvas {
-            max-height: 300px;
-        }
-        
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            background: rgba(15, 23, 42, 0.4);
-            border-radius: 4px;
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: rgba(96, 165, 250, 0.3);
-            border-radius: 4px;
-        }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>⚡ Live CTA Trading System</h1>
-            <p>Real-time futures trading with predictive analytics</p>
-        </div>
-        
-        <div class="status-bar">
-            <div class="status-indicator">
-                <div class="live-dot"></div>
-                <span><strong>LIVE MARKET DATA</strong> - Real-time streaming</span>
-            </div>
-            <div id="timestamp"></div>
-        </div>
-        
-        <div class="grid">
-            <div class="card">
-                <h3>📊 Active Markets</h3>
-                <div id="markets"></div>
-            </div>
-            
-            <div class="card">
-                <h3>📈 Order Flow</h3>
-                <div class="order-feed" id="orderFeed"></div>
-            </div>
-        </div>
-        
-        <div class="grid">
-            <div class="card">
-                <h3>💼 Portfolio Statistics</h3>
-                <div class="stats-grid">
-                    <div class="stat-box">
-                        <div class="stat-label">Total Orders</div>
-                        <div class="stat-value" id="totalOrders">0</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-label">Long Positions</div>
-                        <div class="stat-value price-up" id="longPositions">0</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-label">Short Positions</div>
-                        <div class="stat-value price-down" id="shortPositions">0</div>
-                    </div>
-                    <div class="stat-box">
-                        <div class="stat-label">Total Contracts</div>
-                        <div class="stat-value" id="totalContracts">0</div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="card">
-                <h3>📉 Portfolio Equity</h3>
-                <canvas id="equityChart"></canvas>
-            </div>
-        </div>
-    </div>
 
+st.title("Live CTA Strategy")
+       st.markdown("""
+<style>
+
+.status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.live-dot {
+    width: 12px;
+    height: 12px;
+    background: #10b981;
+    border-radius: 50%;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.card {
+    background: rgba(30, 41, 59, 0.8);
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid rgba(96, 165, 250, 0.2);
+}
+
+.card h3 {
+    font-size: 1.2em;
+    margin-bottom: 15px;
+    color: #60a5fa;
+}
+
+.market-item {
+    background: rgba(15, 23, 42, 0.6);
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    border-left: 4px solid #60a5fa;
+}
+
+</style>
+""", unsafe_allow_html=True)
+        
+  st.markdown("""
+<style>
+
+.market-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.market-name {
+    font-weight: bold;
+    font-size: 1.1em;
+}
+
+.market-price {
+    font-size: 1.3em;
+    font-weight: bold;
+}
+
+.price-up {
+    color: #10b981;
+}
+
+.price-down {
+    color: #ef4444;
+}
+
+.market-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-top: 10px;
+    font-size: 0.9em;
+}
+
+.detail-item {
+    display: flex;
+    justify-content: space-between;
+}
+
+.label {
+    color: #94a3b8;
+}
+
+.order-feed {
+    height: 400px;
+    overflow-y: auto;
+    background: rgba(15, 23, 42, 0.6);
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.order-item {
+    padding: 10px;
+    margin-bottom: 8px;
+    border-radius: 6px;
+    border-left: 3px solid;
+    animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateX(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.order-long {
+    background: rgba(16, 185, 129, 0.1);
+    border-color: #10b981;
+}
+
+</style>
+""", unsafe_allow_html=True)
+        
+       st.markdown("""
+<style>
+
+.order-short {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: #ef4444;
+}
+
+.order-close {
+    background: rgba(96, 165, 250, 0.1);
+    border-color: #60a5fa;
+}
+
+.order-header {
+    display: flex;
+    justify-content: space-between;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.order-details {
+    font-size: 0.85em;
+    color: #94a3b8;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+.stat-box {
+    background: rgba(15, 23, 42, 0.6);
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+}
+
+.stat-label {
+    color: #94a3b8;
+    font-size: 0.9em;
+    margin-bottom: 5px;
+}
+
+.stat-value {
+    font-size: 1.8em;
+    font-weight: bold;
+}
+
+.prediction-box {
+    background: rgba(139, 92, 246, 0.1);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 10px;
+}
+
+.prediction-label {
+    color: #a78bfa;
+    font-size: 0.9em;
+    margin-bottom: 5px;
+}
+
+.prediction-value {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: #c4b5fd;
+}
+
+canvas {
+    max-height: 300px;
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(15, 23, 42, 0.4);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(96, 165, 250, 0.3);
+    border-radius: 4px;
+}
+
+import streamlit as st
+
+# ---- HEADER ----
+st.markdown("""
+<div class="header">
+    <h1>⚡ Live CTA Trading System</h1>
+    <p>Real-time futures trading with predictive analytics</p>
+</div>
+""", unsafe_allow_html=True)
+
+# ---- STATUS BAR ----
+status_left, status_right = st.columns([3, 1])
+
+with status_left:
+    st.markdown("""
+    <div class="status-indicator">
+        <div class="live-dot"></div>
+        <span><strong>LIVE MARKET DATA</strong> - Real-time streaming</span>
+    </div>
+    """, unsafe_allow_html=True)
+
+with status_right:
+    timestamp_placeholder = st.empty()   # replaces <div id="timestamp"></div>
+
+# ---- GRID 1 ----
+col_markets, col_orders = st.columns([2, 1])
+
+with col_markets:
+    st.markdown("<h3>📊 Active Markets</h3>", unsafe_allow_html=True)
+    markets_container = st.container()   # replaces <div id="markets"></div>
+
+with col_orders:
+    st.markdown("<h3>📈 Order Flow</h3>", unsafe_allow_html=True)
+    order_feed = st.container()          # replaces <div id="orderFeed"></div>
+
+# ---- GRID 2 ----
+col_stats, col_equity = st.columns([2, 1])
+
+with col_stats:
+    st.markdown("<h3>💼 Portfolio Statistics</h3>", unsafe_allow_html=True)
+
+    s1, s2 = st.columns(2)
+    s3, s4 = st.columns(2)
+
+    total_orders = s1.metric("Total Orders", 0)
+    long_positions = s2.metric("Long Positions", 0)
+    short_positions = s3.metric("Short Positions", 0)
+    total_contracts = s4.metric("Total Contracts", 0)
+
+with col_equity:
+    st.markdown("<h3>📉 Portfolio Equity</h3>", unsafe_allow_html=True)
+    equity_chart_placeholder = st.empty()   # replaces <canvas id="equityChart"></canvas>
     <script>
-        var markets = [
-            { name: 'Crude Oil (CL)', symbol: 'CL', price: 72.50, volatility: 0.025, trend: 0.001 },
-            { name: 'Gold (GC)', symbol: 'GC', price: 2050.00, volatility: 0.015, trend: 0.0005 },
-            { name: 'S&P 500 (ES)', symbol: 'ES', price: 4780.00, volatility: 0.018, trend: 0.0008 },
-            { name: 'EUR/USD (EC)', symbol: 'EC', price: 1.0950, volatility: 0.012, trend: -0.0003 },
-            { name: 'Treasury (ZN)', symbol: 'ZN', price: 110.50, volatility: 0.01, trend: -0.0002 },
-            { name: 'Natural Gas (NG)', symbol: 'NG', price: 2.85, volatility: 0.035, trend: 0.002 }
-        ];
+       markets = [
+    { "name": "Crude Oil (CL)", "symbol": "CL", "price": 72.50, "volatility": 0.025, "trend": 0.001 },
+    { "name": "Gold (GC)", "symbol": "GC", "price": 2050.00, "volatility": 0.015, "trend": 0.0005 },
+    { "name": "S&P 500 (ES)", "symbol": "ES", "price": 4780.00, "volatility": 0.018, "trend": 0.0008 },
+    { "name": "EUR/USD (EC)", "symbol": "EC", "price": 1.0950, "volatility": 0.012, "trend": -0.0003 },
+    { "name": "Treasury (ZN)", "symbol": "ZN", "price": 110.50, "volatility": 0.01, "trend": -0.0002 },
+    { "name": "Natural Gas (NG)", "symbol": "NG", "price": 2.85, "volatility": 0.035, "trend": 0.002 }
+]
         
         var params = {
             fastMA: 10,
