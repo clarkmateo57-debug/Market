@@ -22,7 +22,15 @@ body {
 </style>
 """, unsafe_allow_html=True)
             color: #fff;
-            padding: 20px;
+            st.markdown("""
+<style>
+.container {
+    padding: 20px;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    border-radius: 12px;
+}
+</style>
+""", unsafe_allow_html=True)
             min-height: 100vh;
         }
         
