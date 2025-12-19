@@ -14,7 +14,13 @@
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+           st.markdown("""
+<style>
+body {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+}
+</style>
+""", unsafe_allow_html=True)
             color: #fff;
             padding: 20px;
             min-height: 100vh;
